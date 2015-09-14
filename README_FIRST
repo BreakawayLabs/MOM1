@@ -1,0 +1,30 @@
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXX    THE GFDL MOM 1 FILES FOUND IN THIS DIRECTORY    XXXX
+XXXX    (ftp://ftp.gfdl.gov/pub/GFDL_MOM) HAVE BEEN     XXXX
+XXXX    SUPERCEDED BY THOSE NOW FOUND IN IN THE MOM 2   XXXX
+XXXX    DIRECTORY (ftp://ftp.gfdl.gov/pub/GFDL_MOM2)    XXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXX   Check out the GFDL Modular Ocean Model Web page  XXXX
+XXXX   http://www.gfdl.gov/~kd/MOMwebpages/MOMWWW.html  XXXX
+XXXX   for more information.                            XXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+MOM 1, originally released in December 1990, is no longer 
+fully supported, nor is the Cox (1984) code. 
+Similarly, earlier GFDL Ocean Group Technical Reports have 
+been superceded by the MOM 2 Documentation: Users Guide and 
+Reference Manual (GFDL Ocean Group Technical Report No. 3) -
+over 260 pages of information that you can download from our
+MOM 2 ftp site. 
+
+Please note that with the release of MOM 2, we consider 
+MOM 1 to be "frozen" at version 1.1. In other words, there 
+are no plans to add new options to the MOM 1 code, nor for 
+continued support of MOM 1.  However, if any significant 
+errors are discovered in the MOM 1 model code, we will 
+e-mail suggested bug fixes to registered users.
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    ( posted 15 March 1996 by K. Dixon: kd@gfdl.gov )
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

@@ -1,0 +1,54 @@
+#
+#   run MOM"s test case on GFDL CRAY YMP 
+#        
+cd $FTMPDIR   # changes to a temporary directory
+/bin/rm *     # removes all files from the temporary directory
+set mompath = /net/rcp/mom/checkout  # path to directory of MOM files 
+set printoutpath = /ymp/o/rcp/mom    # path to directory for printing
+echo 'copying  MOM files...'
+cp $mompath/*.[Ffh] .  # copies MOM files into the temporary directory
+cp $mompath/ocean.in . # copies the namelist input file 
+setenv NPROC 8         # use 8 processors to compile
+
+# set some of MOM's options
+
+set opt1 = '-D diskless  -D congrad9pt -D timing -D cyclic -D fourfil'
+set opt2 = '-D restorst -D rigidlid -D islands  -D constvmix' 
+set opt3 = '-D consthmix'
+
+echo 'preprocessing MOM with cpp...'
+
+cat *.[Ff] > output.a                             # make one big file
+/lib/cpp -P $opt1 $opt2 $opt3  output.a output.0  # apply "ifdefs"
+/bin/rm *.[Ff]                                    # remove files
+/bin/rm output.a                                  # remove file
+fsplit output.0                                   # break into *.f files
+/bin/rm output.0                                  # remove output.0
+
+echo 'compiling  MOM ...'
+
+cf77  -Zv  -o ocean  *.f                          # compile
+
+setenv NCPUS 1
+echo 'Running MOM with the following options...'
+echo opt1 = $opt1
+echo opt2 = $opt2
+echo opt3 = $opt3
+
+setenv FILENV ex1                               # assign files
+assign -a restart -s u   fort.21                # restart file
+assign -a snap.test -s u fort.22                # instantaneous data
+#assign -a fort.23        fort.23               # term balances
+#assign -a SDS -b 1 -n 1 -s bin   fort.11       # control block on SSD
+#assign -a SDS -b 11 -n 80 -s bin  fort.12      # 2d fields on SSD
+#assign -a SDS -b 35 -n 675 -s bin fort.13      # slabs on SSD
+#assign -a SDS -b 35 -n 675 -s bin fort.14      # slabs on SSD
+#assign -a SDS -b 35 -n 675 -s bin fort.15      # slabs on SSD
+
+(ocean > printoutnew) >& errors
+
+cat errors >> printoutnew
+cp printoutnew $printoutpath/printout
+echo  "ALL DONE printout is in:" 
+echo $printoutpath/printout
+#

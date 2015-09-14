@@ -1,0 +1,65 @@
+ ========= ========= ========= ========= ========= ========= ========= =========08/16/93: Bug report: An error has been discovered in global surface salinity
+     datasets distributed prior to 3/10/93.
+          Bug description: Errors exist in a global surface salinity dataset
+     used in-house by some GFDL modelers.  A shift in the seasonal cycle was
+     created during the process of interpolating in time, so that this dataset
+     did not match the seasonal salinities in the original Levitus, 1982 atlas.
+     Since this dataset was used to derive the salinity fields supplied as part
+     of the MOM Dataset, some MOM users may be affected (those who requested
+     and received this dataset from us on boundary condition data tapes for
+     use with the code found in the PREP_DATA directory).
+       More specifically, the error involves the file "levitus.data" which is
+     a "tar" file containing monthly salinities of the form... jan.salt.lev,
+     feb.salt.lev, etc. The error is that the month prefixes "jan", "feb", etc.
+     are incorrect in the sense that the data actually corresponds to 3 months
+     earlier! The temperature files are correct.
+       All copies distributed prior to 3/10/93 contain this error (a total of
+     29 requests for the MOM dataset have been fulfilled).
+          Bug Impact:  Just how much of an impact this error would have on
+     model results depends on how the data is being used.  For example, if you
+     are looking at deep convection in the North Atlantic and are restoring
+     surface salinities toward seasonally varying "observed" values, the
+     erroneous shift of seasons with regard to salinity would be quite
+     important.  However, if you created annual mean salinity values from the
+     files, no error would exist in the annual mean.
+          Bug fix:  Short-term ... Those users who have received data tapes
+     with this error should simply make the appropriate fixes locally, rather
+     than requesting a new data tape.  Do the following...
+
+     1st: extract the monthly salinity fields with:
+
+     tar xvf levitus.data *.salt.mom
+
+     2nd: rename the files:
+
+     mv sep.salt.lev tempsep
+     mv oct.salt.lev tempoct
+     mv nov.salt.lev tempnov
+     mv dec.salt.lev sep.salt.lev
+     mv jan.salt.lev oct.salt.lev
+     mv feb.salt.lev nov.salt.lev
+     mv mar.salt.lev dec.salt.lev
+     mv apr.salt.lev jan.salt.lev
+     mv may.salt.lev feb.salt.lev
+     mv jun.salt.lev mar.salt.lev
+     mv jul.salt.lev apr.salt.lev
+     mv aug.salt.lev may.salt.lev
+     mv tempsep jun.salt.lev
+     mv tempoct jul.salt.lev
+     mv tempnov aug.salt.lev
+
+       The month counter on the salinity units should also be changed to
+     be consistent with the filename changes. In file "import.F" on units
+     50 through 62, after the salinity data has been read in with:
+
+     read (...,9200) month, ...
+
+     change  "month" to be consistent with its filename by:
+
+     month = mod(month+8,12) + 1
+
+     before writing the data out.
+
+     Long term ...  Future tapes will have the salinity data in the proper
+     monthy files.
+========= ========= ========= ========= ========= ========= ========= =========

@@ -1,0 +1,8 @@
+ &contrl init=.true., days=20.0, dgnstc=20.0, tsi=1.0,
+         nmix=17, eb=.true., restrt=.true.,
+         ncon=4, travg=8.0,  snaps=15.0, &end
+ &eddy am=1.e9, ah=2.e7, fkpm=20.0, fkph=1.0, aidif=1.0, &end
+ &tsteps dtts=86400., dtuv=3600., dtsf=3600.,&end
+ &parms mxscan=100, sor=1.60, crit=.1e9, acor=0.0,&end
+ &iland  alonis = 250.0, 130.0,  alatis=-85.0, -25.0, &end
+

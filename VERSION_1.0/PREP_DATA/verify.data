@@ -1,0 +1,51 @@
+#
+#QSUB -lM 1Mw -lUa 1 -lT 2:00 -eo 
+#
+#    read archived data (for use with MOM) for verification
+#    (scripps.topo, sols.stress, oorts.airt, & levitus.data)
+#    to 6250bpi ascii labled tape with 32768 byte block size
+#
+set datapath = /archive/o/rcp/climatology
+set printoutpath = $HOME/prep
+
+cd $datapath
+
+echo " => getting scripps.topo sols.stress oorts.airt levitus.data"
+dmget scripps.topo sols.stress oorts.airt levitus.data
+
+cd $FTMPDIR
+
+cp $datapath/scripps.topo scripps
+cp $datapath/sols.stress sols
+cp $datapath/oorts.airt oorts
+cp $datapath/levitus.data levitus
+
+rsv TAPE 1
+
+set tapes = "-v DATA1:DATA2 -r in -b 32768 -l al -d 6250"
+tpm -P scripps.topo -q 1 -g TAPE $tapes
+tpm -P sols.stress  -q 2 -g TAPE $tapes 
+tpm -P oorts.airt   -q 3 -g TAPE $tapes 
+tpm -P levitus.data -q 4 -g TAPE $tapes 
+
+echo " => copying scripps.topo from file 1 of tape DATA1:DATA2"
+cp scripps.topo topo
+diff  scripps  topo > diff.topo
+echo " => copying sols.stress from file 2 of tape DATA1:DATA2"
+cp  sols.stress stress
+diff sols stress > diff.sol
+echo " => copying oorts.airt from file 3 of tape DATA1:DATA2"
+cp  oorts.airt airt
+diff oorts airt > diff.oort
+echo " => copying levitus.data from file 4 of tape DATA1:DATA2"
+cp levitus.data lev
+diff levitus lev > diff.lev
+
+rls -a
+
+echo " => copying dir to $printoutpath/verify.msgs"
+ls -laF > msgs
+cp msgs $printoutpath/verify.msgs
+
+/bin/rm *
+echo " => Done"

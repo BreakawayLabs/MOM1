@@ -1,0 +1,77 @@
+#
+#QSUB -lM 1Mw  -lT 1:00 -eo
+#   interpolate Scripps 1 degree topography to the MOM grid
+#
+cd $FTMPDIR
+/bin/rm *
+
+#set plots = yes
+set plots = no
+
+set modelpath = /net/rcp/mom/checkout
+set preppath = $HOME/prep
+set graphpath = /ymp/o/wh/rainbow1.1
+set datainpath = /archive/o/rcp/climatology
+set dataoutpath = $ARCHIVE/prep/mom
+set printoutpath = $HOME/prep
+
+/bin/cp $preppath/topo.F .
+/bin/cp $preppath/prep_utl.F .
+/bin/cp $preppath/topo.i .
+/bin/cp $modelpath/*.h .
+/bin/cp $modelpath/blkdta.F .
+/bin/cp $modelpath/setgrid.F .
+/bin/cp $modelpath/iperim.F .
+
+setenv NPROC 1
+
+if ( "$plots" == "no" ) then
+echo " ==> compiling ... "
+  set opt1 = '-D cyclic -D rigidlid -D islands -D removebays'
+  cat *.[Ff] > output.a
+  /lib/cpp -P $opt1  output.a output.f
+  cf77 -Zc  -o topo output.f
+else
+  /bin/cp $graphpath/*.[Ffh]  .
+  /bin/rm testxy.F
+  echo " ==> plotting will be done by this job"
+  echo " ==> compiling ... "
+  set opt0 = '-Zc'
+  set opt1 = '-D cyclic -D rigidlid -D islands -D plots -D removebays'
+  cat *.[Ff] > output.a
+  /lib/cpp -P $opt1  output.a output.f
+  cf77 $opt0 -c  output.f
+  gk2load *.o  -lncarg -lncarg_loc
+  mv a.out topo
+endif
+
+echo " ==> getting Scripps 1 deg topography from $datainpath "
+cd $datainpath
+dmget scripps.topo
+cd $FTMPDIR
+/bin/cp $datainpath/scripps.topo . 
+/bin/rm -f .assign
+setenv FILENV .assign
+assign -a scripps.topo fort.22
+assign -a topography fort.83
+assign -a topo.kmp fort.84
+
+echo " ==> topo.i contents follow:"
+cat topo.i
+echo " "
+
+echo " ==> executing topo program ... "
+setenv NCPUS 1
+(topo < topo.i) > printout
+
+/bin/mv printout $printoutpath/print.topo
+echo  " ==> moved printout to $printoutpath/print.topo"
+/bin/mv topography $dataoutpath/topography
+echo  " ==> moved topography to $dataoutpath/topography"
+/bin/mv topo.kmp $dataoutpath/topo.kmp
+echo  " ==> moved topo.kmp to $dataoutpath/topo.kmp"
+if ( -e posts ) then
+  /bin/mv posts $printoutpath/topo.plots
+  echo  " ==> moved pictures to $printoutpath/topo.plots"
+endif
+echo  " ==> all done "

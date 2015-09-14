@@ -1,0 +1,211 @@
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+                            READ_ME file for
+
+              Preparing monthly climatological data for MOM
+
+            (accompanies GFDL Modular Ocean model version 1.0)
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+Table of Contents:
+
+(i)    General Overview
+(ii)   Files
+(iii)  Preparing data for MOM
+(iv)   Output data files for MOM
+(v)    The climatological database
+(vi)   Getting the climatological database
+(vii)  Warnings
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+(i) General Overview:
+
+The following files are intended for use at GFDL where they access data
+archived on a CRAY YMP. The fortran is standard fortran 77 (except for
+namelist) but the run decks are cray specific.
+The archived climatological datasets can be exported to other CRAYs.
+(written with fortran unformatted  sequential i/o. See "export.data")
+These exported datasets may be useable on other computers if the
+unformatted data can be read.
+
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+(ii) Files:
+      ic.F       : source for interpolating monthly Levitus T & S to MOM
+                   grid in slab form. output is direct access.
+                   additionally, sea surface temp & salt are output
+      ic.i       : namelist input record for "ic.F"
+      ic.run     : run deck for "ic.F"
+
+
+      sbc.F      : source for interpolating monthly Hellerman wind
+                   stress and Oort air temp climatologies to MOM. These
+                   may be used as monthly surface boundary conditions
+                   for MOM
+      sbc.i      : namelist input record for "sbc.F"
+      sbc.run    : run deck for "sbc.F"
+
+      topo.F     : source for interpolating Scripps 1 deg topography to
+                   MOM grid (kmt field) Note: The one in MOM is for
+                   idealized topographies & geometries.
+      topo.i     : namelist input record for "topo.F"
+      topo.run   : run deck for "topo.F"
+
+      prep_utl.F : utility programs used by the above routines
+
+      export.data: run deck for preparing the above mentioned
+                   climatological datasets for export.
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+
+(iii)  Preparing data for MOM:
+
+Once a specific MOM grid configuration has been set up, the
+climatological data base can be interpolated onto MOM's grid. To
+actually get the data into MOM requires additional code which is not
+in MOM (ie: reading the data from within MOM)
+
+1)  set up MOM for the desired resolution & configuration
+    ie: set imt,jmt,km, etc      in param.h
+        set stlon, stlat         in blkdta.F
+        set xmax,xmin,xwid,idir  in blkdta.F
+        set ymax,ymin,ywid,jdir  in blkdta.F
+        run depths.f             to set the vertical levels
+
+
+2)  set the following path names in the run decks:
+
+ set modelpath   = path to your directory of MOM *.[Ffh] routines
+ set preppath    = path to the directory of these data preparatory
+                   routines
+ set graphpath   = path to graphics package (only at GFDL)
+ set datainpath  = path to  Levitus, Hellerman, & Oort climatologies
+                   (which is /archive/o/rcp/climatology at GFDL)
+ set dataoutpath = path to the directory where the interpolated
+                   climatologies for MOM should go.
+ set printoutpath= path to the directory where the fortran output
+                   should go
+
+(Note:  make sure these directories exist before running the programs.
+and  set plots to yes only at GFDL)
+
+
+3) run the sequence: topo.run, sbc.run,  & ic.run
+
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+(iv)   Output data files for MOM:
+
+from topo.run:
+
+$printoutpath/print.topo        fortran output
+$dataoutpath/topo.kmp          "kmt" as one unformatted fortran write
+$dataoutpath/topography         topography (not used by MOM)
+$printoutpath/topo.plots        postscript graphics file (only at GFDL)
+
+
+
+
+from sbc.run:
+
+$printoutpath/print.sbc         fortran output
+$dataoutpath/taux               monthly taux written as direct access
+                                recs 1..12 are jan ..dec, rec=13 is
+                                annual mean
+$dataoutpath/tauy               monthly tauy written as direct access
+                                recs 1..12 are jan ..dec, rec=13 is
+                                annual mean
+$dataoutpath/air.temp           monthly air temp written as direct
+                                access, recs 1..12 are jan ..dec, rec=13
+                                is annual mean
+$printoutpath/sbc.plots         postscript graphics file (only at GFDL)
+
+
+
+
+from ic.run:
+
+(note: individual months can be prepared by changing the months
+      variable in ic.run)
+
+$printoutpath/printic.temp      fortran output for temp interpolations
+$printoutpath/printic.salt      fortran output for salt interpolations
+$dataoutpath/mom.ic.clim        tar version of *temp.mom  and *salt.mom
+                                where the "*" represents months.  "ann"
+                                represents the annual. these are
+                                direct access files in slab form
+                                ie: t(imt,km) & s(imt,km) from j=1,jmt
+$dataoutpath/mom.surf.clim      tar version of sst.mom  & sss.mom
+                                which are direct access monthly sea surf
+                                temp & salt.  ie: t(imt,jmt) &
+                                s(imt,jmt) for n=1,13 (13 is annual)
+$printoutpath/ic.t.*.plot       postscript graphics files (only at GFDL)
+                                where * expands to indicate the month.
+                                and t indicates temperature. s is for
+                                salinity
+
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+(v)    The climatological database:
+
+      These input climatologies are only intended for use with the
+      above programs. The grids have been modified to include two
+      extra points for the cyclic condition at Greenwich.
+
+
+
+/archive/o/rcp/climatology/scripps.topo        Scripps 1 deg topo
+                                               size = 362x180 words
+                                               = 0.5 MB
+
+/archive/o/rcp/climatology/sols.stress         Hellerman wind stress
+                                               monthly climatology
+                                               size = 2*12*(182x90)words
+                                               = 3.15 MB
+
+/archive/o/rcp/climatology/oorts.airt          Oort air temperature
+                                               monthly climatology
+                                               size = 12*(73x73) words
+                                               = 0.5 MB
+
+/archive/o/rcp/climatology/levitus.data        Levitus T & S
+                                               monthly climatology
+                                               filled over land
+                                               2 * 17.3 MB annual T & S
+                                               12*12.6 MB for monthly S
+                                               12*10.0 MB for monthly T
+                                               = 34.6 + 151.2 + 120 MB
+                                               = 305 MB !
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+
+(vi)   Getting the climatological database
+
+To get copies of this database for MOM, send us 2 half inch 6250bpi
+blank tapes: DATA1 & DATA2. We will run "export.data".
+Look at that run deck to see what you'll get.
+
+(vii) Warnings:
+
+It is left to the user of these programs to verify that the results
+are correct (ie: don't blindly use these programs as black boxes ).
+In particular, the levitus data has been extrapolated into land.
+Those land values may not be reasonable in all cases: Particularly
+around anarctica.
+Be on the lookout for strange things happening near coastal areas.
+If this is important, then some strategy should be used to rectify the
+questionable points.
+
+One strategy might be: After the interpolation to MOM's grid, search
+all land mass perimeters (ocean points) and test if the values of T & S
+are within reasonable proximity of a certain value. That value (for
+example) might be the average of the surrounding ocean points (which are
+not perimeter ocean points).
+
+<> <> <> <> <> <> <> <> end of file <> <> <> <> <> <> <> <> <> <> <>

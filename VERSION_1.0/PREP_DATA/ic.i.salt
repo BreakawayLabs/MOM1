@@ -1,0 +1,5 @@
+ &input  tors='salt', nusurf=45, nukmt=18, nuann=20, nuseas=19,
+         nuik=23, nujk=24, nuij=25, curmon=xxx,
+         rdepth=0.0, rlat=0.0, rlon=180.0,
+         slat=-90., elat=90., slon=0., elon=360.,
+ &end

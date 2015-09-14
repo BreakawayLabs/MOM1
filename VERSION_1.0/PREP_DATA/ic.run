@@ -1,0 +1,140 @@
+#
+#QSUB -lM 2Mw -lT 13:00  -eo
+#    interpolate monthly levitus climatological T & S to MOM grid
+#    in slab (i,k) form for records j=1,jmt. each month is a file.
+#    also produce SST & SSS in (i,j) form for each month
+#    records 1..12 are for months jan .. dec. rec=13 is annual mean
+#    all output files are direct access fortran i/o
+#
+cd $FTMPDIR
+/bin/rm *
+
+#set plots = yes
+set plots = no
+#set months = (jan feb mar apr may jun jul aug sep oct nov dec ann)
+set months = (jan ann)
+
+set modelpath = /net/rcp/mom/checkout
+set preppath = $HOME/prep
+set graphpath = /ymp/o/wh/rainbow1.1
+set datainpath = /archive/o/rcp/climatology
+set dataoutpath = $ARCHIVE/prep/mom
+set printoutpath = $HOME/prep
+
+/bin/cp $preppath/ic.F .
+/bin/cp $preppath/ic.i.temp .
+/bin/cp $preppath/ic.i.salt .
+/bin/cp $preppath/prep_utl.F .
+/bin/cp $modelpath/*.h .
+/bin/cp $modelpath/blkdta.F .
+/bin/cp $modelpath/setgrid.F .
+
+setenv NPROC 1
+
+if ( "$plots" == "no" ) then
+echo " ==> compiling ... "
+  set opt1 = '-D cyclic'
+  cat *.[Ff] > output.a
+  /lib/cpp -P $opt1  output.a output.f
+  cf77 -Zc  -o ic output.f
+else
+  /bin/cp $graphpath/*.[Ffh]  .
+  /bin/rm testxy.F
+  echo " ==> plotting will be done by this job"
+  echo " ==> compiling ... "
+  set opt1 = '-D cyclic  -D plots'
+  cat *.[Ff] > output.a
+  /lib/cpp -P $opt1  output.a output.f
+  cf77 -c  output.f
+  gk2load *.o  -lncarg -lncarg_loc
+  mv a.out ic
+endif
+ 
+
+echo " ==> getting   $datainpath/levitus.data "
+echo "           and $dataoutpath/topo.kmp "
+cd $datainpath
+dmget $datainpath/levitus.data $dataoutpath/topo.kmp
+cd $FTMPDIR
+/bin/cp $dataoutpath/topo.kmp .
+/bin/cp $datainpath/levitus.data .
+
+tar xvf levitus.data 
+/bin/rm levitus.data
+
+echo " == > Starting monthly interpolations to MOM grid"
+rm -f .assign
+setenv FILENV .assign
+assign -a topo.kmp fort.18
+
+cp ann.temp.lev annual.t
+cp ann.salt.lev annual.s
+ 
+echo " ==> ic.i.temp contents follow:"
+cat ic.i.temp
+ 
+echo " ==> ic.i.salt contents follow:"
+cat ic.i.salt
+
+
+foreach month ($months)
+
+assign -a annual.t fort.20
+assign -a $month.temp.lev fort.19
+assign -a $month.temp.mom fort.23
+assign -a sst.mom fort.44
+
+echo ""
+echo "==> Modified namelist contents for $month"
+sed "s/curmon=xxx/curmon=$month/" < ic.i.temp > ic.i.x
+cat ic.i.x
+   
+(ic < ic.i.x) >> printtemp
+
+if ( -e posts ) then
+  /bin/mv posts $printoutpath/ic.t.$month.plot
+  echo  " ==> moved pictures to $printoutpath/ic.t.$month.plot"
+endif
+
+assign -a annual.s fort.20
+assign -a $month.salt.lev fort.19
+assign -a $month.salt.mom fort.23
+assign -a sss.mom fort.45
+ 
+
+echo ""
+echo "==> Modified namelist contents for $month"
+sed "s/curmon=xxx/curmon=$month/" < ic.i.salt > ic.i.x
+cat ic.i.x
+
+(ic < ic.i.x) >> printsalt
+
+if ( -e posts ) then
+  /bin/mv posts $printoutpath/ic.s.$month.plot
+  echo  " ==> moved pictures to $printoutpath/ic.s.$month.plot"
+endif
+
+end
+
+/bin/rm ic.i.x
+echo ""
+echo  " ==> tar initial conditions for MOM to $dataoutpath/mom.ic.clim"
+echo ""
+
+tar cvf mom.ic.clim *temp.mom *salt.mom
+#/bin/rm *.lev
+/bin/mv mom.ic.clim $dataoutpath/mom.ic.clim
+echo ""
+echo  " ==> tar surface init conditions to $dataoutpath/mom.surf.clim"
+echo ""
+tar cvf mom.surf.clim sst.mom sss.mom
+/bin/mv mom.surf.clim $dataoutpath/mom.surf.clim
+
+cp printtemp $printoutpath/printic.temp
+cp printsalt $printoutpath/printic.salt
+echo " ==> printouts are in:"
+echo $printoutpath/printic.temp
+echo $printoutpath/printic.salt
+
+echo  " ==> all done == "
+echo ""

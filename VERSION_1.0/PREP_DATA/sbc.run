@@ -1,0 +1,100 @@
+#
+#QSUB -lM 2Mw -lT 5:00 -eo
+#   interpolate Hellerman wind stress climatology & Oort air temp
+#   climatology to the MOM grid. records 1..12 are months 1..12
+#   record 13 is annual mean
+#
+cd $FTMPDIR
+/bin/rm *
+
+#set plots = yes
+set plots = no
+
+set modelpath = /net/rcp/mom/checkout
+set preppath = $HOME/prep
+set graphpath = /ymp/o/wh/rainbow1.1
+set datainpath = /archive/o/rcp/climatology
+set dataoutpath = $ARCHIVE/prep/mom
+set printoutpath = $HOME/prep
+
+/bin/cp $preppath/sbc.F .
+/bin/cp $preppath/prep_utl.F .
+/bin/cp $preppath/sbc.i .
+/bin/cp $modelpath/*.h .
+/bin/cp $modelpath/blkdta.F .
+/bin/cp $modelpath/setgrid.F .
+
+setenv NPROC 1
+
+if ( "$plots" == "no" ) then
+echo " ==> compiling ... "
+  set opt1 = '-D cyclic'
+  cat *.[Ff] > output.a
+  /lib/cpp -P $opt1  output.a output.f
+  cf77 -Zc  -o sbc output.f
+else
+  /bin/cp $graphpath/*.[Ffh]  .
+  /bin/rm testxy.F
+  echo " ==> plotting will be done by this job"
+  echo " ==> compiling ... "
+  set opt1 = '-D cyclic  -D plots'
+  cat *.[Ff] > output.a
+  /lib/cpp -P $opt1  output.a output.f
+  cf77 -c  output.f
+  gk2load *.o  -lncarg -lncarg_loc
+  mv a.out sbc
+endif
+
+ 
+echo " ==> getting sols.stress and oorts.airt from $datainpath "
+cd $datainpath
+dmget sols.stress oorts.airt
+cd $FTMPDIR
+/bin/cp $datainpath/sols.stress .
+/bin/cp $datainpath/oorts.airt .
+echo " ==> getting topo.kmp from $dataoutpath "
+/bin/cp $dataoutpath/topo.kmp .
+
+/bin/rm -f .assign
+setenv FILENV .assign
+
+#       input data
+
+assign -a topo.kmp fort.18
+assign -a sols.stress fort.15
+assign -a oorts.airt fort.50
+
+#       output data
+ 
+assign -a curl.tau fort.39
+assign -a taux fort.41
+assign -a tauy fort.42
+assign -a air.temp fort.43
+
+ 
+echo " ==> sbc.i contents follow:"
+cat sbc.i
+echo " "
+
+setenv NCPUS 1
+echo " ==> running bc == "
+echo ""
+#
+(sbc < sbc.i) > printout
+#
+echo ""
+ 
+/bin/mv printout $printoutpath/print.sbc
+echo  " ==> moved printout to $printoutpath/print.sbc"
+/bin/mv taux $dataoutpath/taux
+echo  " ==> moved taux to $dataoutpath/taux"
+/bin/mv tauy $dataoutpath/tauy
+echo  " ==> moved tauy to $dataoutpath/tauy"
+/bin/mv air.temp $dataoutpath/air.temp
+echo  " ==> moved air.temp to $dataoutpath/air.temp"
+if ( -e posts ) then
+  /bin/mv posts $printoutpath/sbc.plots
+  echo  " ==> moved pictures to $printoutpath/sbc.plots"
+endif
+echo  " ==> all done "
+#

@@ -1,0 +1,121 @@
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+           You're looking at the "WHATS_HERE" file for the
+ Geophysical Fluid Dynamics Laboratory's (GFDL) Modular Ocean Model
+
+           this file was last updated: 16 August 1993
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+ The GFDL Modular Ocean Model (MOM) is a primitive equation general
+ ocean circulation model intended to be a flexible tool for exploring
+ ocean and coupled air-sea applications over a wide range of space and
+ time scales.  MOM has been written as a collaborative effort by Ron
+ Pacanowski, Keith Dixon, and Anthony Rosati at the National
+ Oceanographic and Atmospheric Administration's Geophysical Fluid
+ Dynamics Laboratory in Princeton, New Jersey.
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+  The directory structure for files associated with the
+  GFDL Modular Ocean Model looks like this:
+
+                      /----- VERSION_1.0 ----- PREP_DATA
+   /pub/GFDL_MOM ----<
+                      \
+                       \---- VERSION_1.1 ----- PREP_DATA
+
+  The "GFDL_MOM" directory contains 3 files:
+
+     "WHATS_HERE" => the file you are looking at now, which is
+            designed to give a quick overview of the MOM files
+            made available on GFDL's anonymous ftp server.
+      "maillist_inside" => a list of MOM users here at NOAA's
+            Geophysical Fluid Dynamics Laboratory and at
+            Princeton University.
+      "maillist_outside" => a list of registered MOM users
+            located outside of GFDL and Princeton, New Jersey.
+
+   Two directories are found under "GFDL_MOM"...namely
+   "VERSION_1.0" and "VERSION_1.1"
+
+   New users of the model should procede to the "VERSION_1.1"
+   directory and look at the "READ_ME_1.1" file there for
+   additional info about the model and files found under that
+   directory.  The code found in file "mom_1.1" was first released
+   in August 1993.  The "MOM_NEWS_1.1" file will contain the most
+   up to date info concerning the model.
+
+   The original release of the MOM code took place in December 1990.
+   The "VERSION_1.0" directory contains this code and other associated
+   files.  Those who have worked with MOM version 1.0 should review
+   the contents of the "MOM_NEWS_1.0" file AND the "MOM_NEWS_1.1"
+   file, mentioned in the above paragraph.
+
+   The "mom_1.1" code should be considered an incremental upgrade
+   from "mom_1.0".  The new code simply has all bug fixes reported
+   through August 1993 applied to it.  The release of MOM version 1.1
+   was designed to alleviate the need for new users to have to apply
+   by hand the list of bug fixes found in "MOM_NEWS_1.0".  Users of
+   version 1.0 may find it useful to compare version 1.1 with their
+   own locally modified MOM code files as a check that bug fixes have
+   been corrected in their code.
+
+   As of August 1993, the code and data files found in the two
+   PREP_DATA directories are identical.
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+  NOTE:
+  Researchers using the MOM code should reference the model as
+  follows...
+
+  Pacanowski, R., K. Dixon and A. Rosati, "The G.F.D.L Modular
+  Ocean Model Users Guide", GFDL Ocean Group Technical Report #2,
+  (1991,1993).
+
+  Until a nice postscript version of the User's Guide is made
+  available, the READ_ME files will serve as our users guide.
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+
+ You can contact MOM's authors in a number of ways, although e-mail
+ is preferred.
+
+                     e-mail address          phone number
+ Keith Dixon          kd@gfdl.gov            (609) 452-6574
+ Ron Pacanowski       rcp@gfdl.gov           (609) 452-6527
+ Tony Rosati          ar@gfdl.gov            (609) 452-6584
+
+ Omnet/Sciencenet mailbox: K.DIXON           fax: (609) 987-5063
+
+       Geophysical Fluid Dynamics Lab
+       US Dept. of Commerce / N.O.A.A.
+       Princeton Univ. - P.O. Box 308
+       Princeton, NJ 08542
+
+ If you are considering using MOM, please fill-out this form and
+ send it to one of the above addresses (e-mail is preferred).
+ If you don't, we will not be able to let you know of new releases
+ or bug reports.
+
+-----------------------------------------------------------------
+
+ GFDL MOM REGISTRATION
+
+ NAME:        ________________________________________________
+ ADDRESS:     ________________________________________________
+              ________________________________________________
+              ________________________________________________
+              ________________________________________________
+       PHONE: _____________________ FAX: _____________________
+ E-MAIL ADDRESS:______________________________________________
+ On what type of computer(s) would you expect to run this code?
+ __________________________________________________________
+ On what type of computer(s) would you expect to manage this
+ source code? ________________________________________________
+
+-----------------------------------------------------------------
+
+<> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <> <>
+

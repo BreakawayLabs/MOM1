@@ -1,0 +1,42 @@
+#
+echo " "
+echo "             SUN Source Code Merge Utility for MOM 1.0"
+echo "  (for merging any two codes {having a common ancestry} together)"
+echo " "
+echo "Enter name of the old (ancestral) version of MOMs code:"
+set trunk1=($<)
+echo "Enter name of your locally modified MOMs code:"
+set branch=($<)
+echo "Enter name of the new version of MOMs code:"
+set trunk2=($<)
+echo "==> installing $trunk1 under temporary SCCS "
+echo y > .tmp_y
+/bin/rm -r 123scratch < .tmp_y
+/bin/rm .tmp_y
+mkdir 123scratch
+cd 123scratch
+cp ../$trunk1 code
+mkdir SCCS
+sccs create -fb code
+/bin/rm ,code
+echo "==> preparing to install $branch" as a branch
+sccs edit -b code
+cp ../$branch code
+echo "==> installing $branch as a branch"
+sccs delta -y"$branch source" code 
+echo "==> preparing to install $trunk2"
+sccs edit code
+cp ../$trunk2 code
+echo "==> installing $trunk2"
+sccs delta -y"$trunk2 source" code
+echo "==> merging $trunk1 & $branch & $trunk2"
+sccs edit -i1.1.1.1  code
+mv code ../new_source
+cd ../
+echo y > .tmp_y
+/bin/rm -r 123scratch < .tmp_y
+/bin/rm .tmp_y
+echo " "
+echo "==> your upgraded code is in file: new_source"
+echo "  (remember to: diff $trunk2 new_source > my.chgs for inspection)" 
+

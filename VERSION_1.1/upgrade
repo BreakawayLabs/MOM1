@@ -1,0 +1,74 @@
+#
+echo " "
+echo "     Source Code Merge Utility for MOM version 1.0 or 1.1"
+echo "  (for merging any two codes {having a common ancestry} together)"
+echo " "
+echo "  NOTE: this script assumes that the  3 files of interest all"
+echo "       reside in the current directory ... although developed"
+echo "       for a Sun workstation, this script should be of use on"
+echo "       other machines, perhaps after some modifications."
+echo "       It was designed to use mergelibed files as input."
+echo " "
+
+echo "Enter name of the old (ancestral) version of the GFDL MOM code:"
+set trunk1=($<)
+if ( -e $trunk1 ) then
+  echo " >> common ancestor  = $trunk1 "
+else
+  echo "ERROR: $trunk1 does not exist in the current directory"
+  exit
+endif
+echo "Enter name of your locally modified MOM code:"
+set branch=($<)
+if ( -e $branch ) then
+  echo " >> locally modified = $branch "
+else
+  echo "ERROR: $branch does not exist in the current directory"
+  exit
+endif
+
+echo "Enter name of the new version of the MOM code:"
+set trunk2=($<)
+if ( -e $trunk2 ) then
+  echo " >> new MOM version  = $trunk2 "
+else
+  echo "ERROR: $trunk2 does not exist in the current directory"
+  exit
+endif
+
+echo "==> installing $trunk1 under temporary SCCS "
+echo y > .tmp_y
+\rm -r 123scratch < .tmp_y
+\rm .tmp_y
+mkdir 123scratch
+cd 123scratch
+cp ../$trunk1 code
+mkdir SCCS
+sccs create -fb code
+\rm ,code
+
+echo "==> preparing to install $branch" as a branch
+sccs edit -b code
+cp ../$branch code
+
+echo "==> installing $branch as a branch"
+sccs delta -y"$branch source" code
+
+echo "==> preparing to install $trunk2"
+sccs edit code
+cp ../$trunk2 code
+
+echo "==> installing $trunk2"
+sccs delta -y"$trunk2 source" code
+
+echo "==> merging $trunk1 & $branch & $trunk2"
+sccs edit -i1.1.1.1  code
+mv code ../new_source
+cd ../
+echo y > .tmp_y
+\rm -r 123scratch < .tmp_y
+\rm .tmp_y
+echo " "
+echo "==> your upgraded code is in file: new_source"
+echo "  (remember to: diff $trunk2 new_source > my.chgs for inspection)"
+
